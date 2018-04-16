@@ -172,6 +172,16 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
     print ("saved synapses to:", synapse_file)
 #End def
 
+def classify(sentence, show_details=False):
+    results = think(sentence, show_details)
+
+    results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD ] 
+    results.sort(key=lambda x: x[1], reverse=True) 
+    return_results =[[classes[r[0]],r[1]] for r in results]
+    #print ("%s \n classification: %s" % (sentence, return_results))
+    return return_results[0]
+#End def
+
 stemmer = LancasterStemmer()
 parser = argparse.ArgumentParser()
 parser.add_argument('train', help='The filename that points to training set.')
@@ -205,15 +215,15 @@ words = []
 classes = []
 statements = []
 ignore_words = ['?','.']
-# loop through each sentence in our training data
+# loop through each sentence in the training data
 for pattern in training_data:
     # tokenize each word in the sentence
     w = nltk.word_tokenize(pattern["sentence"])
-    # add to our words list
+    # add to the dictionary
     words.extend(w)
-    # add to statements in our corpus
+    # add to statements in the corpus
     statements.append((w, pattern['class']))
-    # add to our classes list
+    # add to the classes list
     if pattern['class'] not in classes:
         classes.append(pattern['class'])
 #End for
@@ -224,10 +234,10 @@ words = list(set(words))
 # remove duplicates
 classes = list(set(classes))
 
-# create our training data
+# create the training data
 training = []
 output = []
-# create an empty array for our output
+# create an empty array for the output
 output_empty = [0] * len(classes)
 
 # training set, bag of words for each sentence
@@ -248,14 +258,13 @@ for statement in statements:
     output_row[classes.index(statement[1])] = 1
     output.append(output_row)
 
-
 X = np.array(training)
 y = np.array(output)
 
+# DO THIS IF YOU WANT TO TRAIN ANOTHER NN
 #train(X, y, hidden_neurons=20, alpha=0.1, epochs=10000, dropout=False, dropout_percent=0.2)
 
-print ("Done processing")
-
+print "Done processing"
 
 # probability threshold
 ERROR_THRESHOLD = 0.2
@@ -265,34 +274,46 @@ with open(synapse_file) as data_file:
     synapse = json.load(data_file) 
     synapse_0 = np.asarray(synapse['synapse0']) 
     synapse_1 = np.asarray(synapse['synapse1'])
-
-def classify(sentence, show_details=False):
-    results = think(sentence, show_details)
-
-    results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD ] 
-    results.sort(key=lambda x: x[1], reverse=True) 
-    return_results =[[classes[r[0]],r[1]] for r in results]
-    #print ("%s \n classification: %s" % (sentence, return_results))
-    return return_results[0]
-
+#End with
 
 dataTest = []
 ratingsTest = []
 classesTest = []
 resultTest = []
 
+print "Classifying test results..." 
+
 with open(args.train, 'r') as csv_test:
     test_reader = csv.reader(csv_test, delimiter=',')
     next(test_reader)
     for row in test_reader:
         rating = float(row[1])
-        if rating >= -1 and rating < 1:
-            continue       
+        if rating >= -0.2 and rating < 0.2:
+            continue     
+            
         dataTest.append(getWords(row[3]))
         resultTest.append(classify(row[3])[0])
         ratingsTest.append(int(rating))
         classesTest.append(classer(row))
 #End with
 
-print resultTest[2]
+correct, incorrect = (0,0)
+for i in range(0,len(classesTest)):
+    if classesTest[i] == resultTest[i]:
+        correct += 1
+    else:
+        incorrect += 1
+    #End if
+#End for
 
+print 'NN classification accuracy: {}'.format(correct/float(correct + incorrect))
+
+while (1):
+    userArgument = raw_input('Enter an argument to classify (or type \'exit\' to quit): ')
+    if userArgument == 'exit' or userArgument == 'Exit':
+        print 'Goodbye!'
+        break;
+    else:
+        print 'Your argument was classified as: {}'.format(classify(userArgument)[0])
+    #end if
+#End while
