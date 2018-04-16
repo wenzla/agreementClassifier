@@ -110,8 +110,9 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
         
     for j in iter(range(epochs+1)):
         # Feed forward through layers 0, 1, and 2
-        print j
-
+        if j%100 == 0 or j < 100:
+            print j
+        #end if
         layer_0 = X
         layer_1 = sigmoid(np.dot(layer_0, synapse_0))
                 
@@ -164,7 +165,7 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
                'words': words,
                'classes': classes
               }
-    synapse_file = "synapses.json"
+    synapse_file = "synapses2.json"
 
     with open(synapse_file, 'w') as outfile:
         json.dump(synapse, outfile, indent=4, sort_keys=True)
@@ -203,7 +204,7 @@ for i in range(0,len(data)):
 words = []
 classes = []
 statements = []
-ignore_words = ['?',',',')','.']
+ignore_words = ['?','.']
 # loop through each sentence in our training data
 for pattern in training_data:
     # tokenize each word in the sentence
@@ -215,7 +216,7 @@ for pattern in training_data:
     # add to our classes list
     if pattern['class'] not in classes:
         classes.append(pattern['class'])
-
+#End for
 # stem and lower each word and remove duplicates
 words = [stemmer.stem(w.lower()) for w in words if w not in ignore_words]
 words = list(set(words))
@@ -251,23 +252,36 @@ for statement in statements:
 X = np.array(training)
 y = np.array(output)
 
-start_time = time.time()
+#train(X, y, hidden_neurons=20, alpha=0.1, epochs=10000, dropout=False, dropout_percent=0.2)
 
-train(X, y, hidden_neurons=20, alpha=0.1, epochs=100, dropout=False, dropout_percent=0.2)
-
-elapsed_time = time.time() - start_time
-print ("processing time:", elapsed_time, "seconds")
+print ("Done processing")
 
 
+# probability threshold
+ERROR_THRESHOLD = 0.2
+# load our calculated synapse values
+synapse_file = 'synapses.json' 
+with open(synapse_file) as data_file: 
+    synapse = json.load(data_file) 
+    synapse_0 = np.asarray(synapse['synapse0']) 
+    synapse_1 = np.asarray(synapse['synapse1'])
+
+def classify(sentence, show_details=False):
+    results = think(sentence, show_details)
+
+    results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD ] 
+    results.sort(key=lambda x: x[1], reverse=True) 
+    return_results =[[classes[r[0]],r[1]] for r in results]
+    #print ("%s \n classification: %s" % (sentence, return_results))
+    return return_results[0]
 
 
-
-'''
 dataTest = []
 ratingsTest = []
 classesTest = []
+resultTest = []
 
-with open(args.test, 'r') as csv_test:
+with open(args.train, 'r') as csv_test:
     test_reader = csv.reader(csv_test, delimiter=',')
     next(test_reader)
     for row in test_reader:
@@ -275,7 +289,10 @@ with open(args.test, 'r') as csv_test:
         if rating >= -1 and rating < 1:
             continue       
         dataTest.append(getWords(row[3]))
+        resultTest.append(classify(row[3])[0])
         ratingsTest.append(int(rating))
         classesTest.append(classer(row))
 #End with
-'''
+
+print resultTest[2]
+
