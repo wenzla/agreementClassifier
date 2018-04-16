@@ -112,7 +112,6 @@ with open(args.test, 'r',  encoding='UTF-8') as csv_test:
 
         cls = nbc.classify(row)
         actual_cls = classer(row)
-
         real_counts[actual_cls] += 1
 
         if cls == actual_cls:
