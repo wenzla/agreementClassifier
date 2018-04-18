@@ -37,14 +37,14 @@ To run the application download the repo and make sure you have the following py
 Next, navigate to the agreementClassifier directory of the application.
 
 Both classifiers use the same arguments: classifier.py [training set csv] [testing set csv]
-Examples shown below.
+
+Examples shown below:
 
 >> python3 src\main.py data\iac-b-train.csv data\iac-b-dev.csv
 
 and 
 
 >> python src\NNClassify.py data\iac-b-train.csv data\iac-b-dev.csv
-
 
 
 ## TODOs

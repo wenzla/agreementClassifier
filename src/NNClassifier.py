@@ -2,7 +2,9 @@ import gensim
 import argparse
 import csv
 import re
+import random
 from nltk.stem.lancaster import LancasterStemmer
+from nltk.stem.snowball import SnowballStemmer
 import nltk
 import os
 import json
@@ -124,8 +126,8 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
         # how much did we miss the target value?
         layer_2_error = y - layer_2
 
-        if (j% 10000) == 0 and j > 5000:
-            # if this 10k iteration's error is greater than the last iteration, break out
+        if (j% 1000) == 0 and j > 5000:
+            # if this thousand iteration's error is greater than the last iteration, break out
             if np.mean(np.abs(layer_2_error)) < last_mean_error:
                 print ("delta after "+str(j)+" iterations:" + str(np.mean(np.abs(layer_2_error))) )
                 last_mean_error = np.mean(np.abs(layer_2_error))
@@ -137,10 +139,10 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
         # were we really sure? if so, don't change too much.
         layer_2_delta = layer_2_error * sigmoid_output_to_derivative(layer_2)
 
-        # how much did each l1 value contribute to the l2 error (according to the weights)?
+        # how much did each layer1 value contribute to the layer2 error (according to the weights)?
         layer_1_error = layer_2_delta.dot(synapse_1.T)
 
-        # in what direction is the target l1?
+        # in what direction is the target layer 1?
         # were we really sure? if so, don't change too much.
         layer_1_delta = layer_1_error * sigmoid_output_to_derivative(layer_1)
         
@@ -159,7 +161,7 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
 
     now = datetime.datetime.now()
 
-    # persist synapses
+    # save synapses to file so it can be easily loaded for later use
     synapse = {'synapse0': synapse_0.tolist(), 'synapse1': synapse_1.tolist(),
                'datetime': now.strftime("%Y-%m-%d %H:%M"),
                'words': words,
@@ -179,6 +181,13 @@ def classify(sentence, show_details=False):
     results.sort(key=lambda x: x[1], reverse=True) 
     return_results =[[classes[r[0]],r[1]] for r in results]
     #print ("%s \n classification: %s" % (sentence, return_results))
+    if len(return_results) < 1:
+        rand = random.randint(1,3)
+        if rand == 1:
+            return classer([rand , -5])
+        else:
+            return classer([rand , 5])
+    #end if
     return return_results[0]
 #End def
 
@@ -197,7 +206,7 @@ with open(args.train, 'r') as csv_train:
     next(train_reader)
     for row in train_reader:
         rating = float(row[1])
-        if rating >= -1 and rating < 1:
+        if rating >= -0.2 and rating < 0.2:
             continue       
         data.append(getWords(row[3]))
         line.append(row[3])
@@ -262,14 +271,14 @@ X = np.array(training)
 y = np.array(output)
 
 # DO THIS IF YOU WANT TO TRAIN ANOTHER NN
-#train(X, y, hidden_neurons=20, alpha=0.1, epochs=10000, dropout=False, dropout_percent=0.2)
+# train(X, y, hidden_neurons=20, alpha=0.1, epochs=10000, dropout=False, dropout_percent=0.2)
 
 print "Done processing"
 
 # probability threshold
 ERROR_THRESHOLD = 0.2
 # load our calculated synapse values
-synapse_file = 'synapses.json' 
+synapse_file = 'synapses2.json' 
 with open(synapse_file) as data_file: 
     synapse = json.load(data_file) 
     synapse_0 = np.asarray(synapse['synapse0']) 
@@ -283,12 +292,12 @@ resultTest = []
 
 print "Classifying test results..." 
 
-with open(args.train, 'r') as csv_test:
+with open(args.test, 'r') as csv_test:
     test_reader = csv.reader(csv_test, delimiter=',')
     next(test_reader)
     for row in test_reader:
         rating = float(row[1])
-        if rating >= -0.2 and rating < 0.2:
+        if rating >= -1 and rating < 1:
             continue     
             
         dataTest.append(getWords(row[3]))
