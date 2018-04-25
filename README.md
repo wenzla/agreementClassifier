@@ -33,6 +33,8 @@ To run the application download the repo and make sure you have the following py
 | time            	|     	| X   	|
 | datetime        	|     	| X   	|
 | sys             	|     	| X   	|
+| matplotlib        | X     |       |
+| scikit            | X     |       |
 
 Next, navigate to the agreementClassifier directory of the application.
 
@@ -46,13 +48,15 @@ and
 
 >> python src\NNClassify.py data\iac-b-train.csv data\iac-b-dev.csv
 
+also I use the scikit python library to check performance against already implemented classifiers
+
 
 ## TODOs
 
 * Use entirety of IAC rather than smaller balanced set. (Not on neural network as the training already took long using a small subset of the data)
-* Try to weasel out a little more performance out of the Naive Bayes Classifier.
+* Try to weasel out a little more performance out of the custom classifiers.
 
 
 Enjoy!
 
--- Matias Grioni and Allen Wenzl
+-- Allen Wenzl

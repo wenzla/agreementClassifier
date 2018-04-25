@@ -167,7 +167,7 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
                'words': words,
                'classes': classes
               }
-    synapse_file = "synapses2.json"
+    synapse_file = "synapsesTwo.json"
 
     with open(synapse_file, 'w') as outfile:
         json.dump(synapse, outfile, indent=4, sort_keys=True)
@@ -206,7 +206,7 @@ with open(args.train, 'r') as csv_train:
     next(train_reader)
     for row in train_reader:
         rating = float(row[1])
-        if rating >= -0.2 and rating < 0.2:
+        if rating >= -2 and rating < 2:
             continue       
         data.append(getWords(row[3]))
         line.append(row[3])
@@ -223,7 +223,7 @@ for i in range(0,len(data)):
 words = []
 classes = []
 statements = []
-ignore_words = ['?','.']
+ignore_words = ['?','.','the','a','an','of']
 # loop through each sentence in the training data
 for pattern in training_data:
     # tokenize each word in the sentence
@@ -266,19 +266,20 @@ for statement in statements:
     output_row = list(output_empty)
     output_row[classes.index(statement[1])] = 1
     output.append(output_row)
+#end for 
 
 X = np.array(training)
 y = np.array(output)
 
 # DO THIS IF YOU WANT TO TRAIN ANOTHER NN
-# train(X, y, hidden_neurons=20, alpha=0.1, epochs=10000, dropout=False, dropout_percent=0.2)
+#train(X, y, hidden_neurons=20, alpha=0.1, epochs=100000, dropout=False, dropout_percent=0.2)
 
 print "Done processing"
 
 # probability threshold
-ERROR_THRESHOLD = 0.2
+ERROR_THRESHOLD = 0.02
 # load our calculated synapse values
-synapse_file = 'synapses2.json' 
+synapse_file = 'synapsesTwo.json' 
 with open(synapse_file) as data_file: 
     synapse = json.load(data_file) 
     synapse_0 = np.asarray(synapse['synapse0']) 
@@ -306,6 +307,9 @@ with open(args.test, 'r') as csv_test:
         classesTest.append(classer(row))
 #End with
 
+#print resultTest
+#print classesTest
+
 correct, incorrect = (0,0)
 for i in range(0,len(classesTest)):
     if classesTest[i] == resultTest[i]:
@@ -323,6 +327,6 @@ while (1):
         print 'Goodbye!'
         break;
     else:
-        print 'Your argument was classified as: {}'.format(classify(userArgument)[0])
+        print 'Your argument was classified as: {}'.format(classify(userArgument))
     #end if
 #End while
