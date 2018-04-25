@@ -31,9 +31,9 @@ def classer(sample):
     Provides the class of the given sample.
     """
     score = float(sample[1])
-    if score >= 0.2 and score <= 5:
+    if score >= 0.1 and score <= 5:
         return AGREE_CLASS
-    elif score < -0.2 and score >= -5:
+    elif score < -0.1 and score >= -5:
         return DISAGREE_CLASS
 #End def
 

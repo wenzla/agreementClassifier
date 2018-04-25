@@ -6,7 +6,7 @@ class Stemmer:
     instantiate the stemmer and focus on its interface.
     """
     def __init__(self):
-        self.internal = nltk.stem.LancasterStemmer()
+        self.internal = nltk.stem.PorterStemmer()
 
     def stem(self, word):
         """

@@ -42,9 +42,9 @@ def classer(sample):
     Provides the class of the given sample.
     """
     score = float(sample[1])
-    if score > 0.2 and score <= 5:
+    if score > 0.1 and score <= 5:
         return AGREE_CLASS
-    elif score < -0.2 and score >= -5:
+    elif score < -0.1 and score >= -5:
         return DISAGREE_CLASS
 #End def
 
@@ -140,7 +140,7 @@ def graphStuff(XVals, graphProbs):
         #end for
         graphProbsI.append(tempArray)
     #end for
-    #print graphProbsI
+    print graphProbsI
 
     for i in range(len(graphProbsI)):
         plt.plot(XVals, graphProbsI[i])    
@@ -196,5 +196,5 @@ while num_to_select < len(data):
 
 #print XVals
 #print graphProbs
-#graphStuff(XVals, graphProbs)
+graphStuff(XVals, graphProbs)
 

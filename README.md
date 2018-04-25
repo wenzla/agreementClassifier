@@ -8,8 +8,10 @@ This implementation has about 73.42% accuracy.
 
 There is now a neural network implementation of the IAC classifier using bag of words (but with LancasterStemmer stems instead of words) as the feature vector.  It is trained on 'strong' arguments
 
-The neural network has around 99% accuracy if testing on the 'strong' arguments (confidence of 1.0 to 5.0 or -1.0 to -5.0).
-The accuracy drops down to ~86% percent if used on any statement.
+The neural network has around 78% accuracy if testing on the 'strong' arguments (confidence of 2.0 to 5.0 or -2.0 to -5.0).
+The accuracy drops down to ~62% percent if used on any statement.
+
+The neural network generates a file containing weights that can be used later on.  However, these files are too big for github and are not loaded in this repo.
 
 # How to run
 
@@ -46,10 +48,11 @@ Examples shown below:
 
 and 
 
->> python src\NNClassify.py data\iac-b-train.csv data\iac-b-dev.csv
+>> python src\NNClassifier.py data\iac-b-train.csv data\iac-b-dev.csv
 
-also I use the scikit python library to check performance against already implemented classifiers
+also I use the scikit python library to check performance against already implemented classifiers which can be implemented by
 
+>> python src\OtherClassifier.py data\iac-b-train.csv data\iac-b-dev.csv
 
 ## TODOs
 

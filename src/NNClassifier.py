@@ -5,6 +5,7 @@ import re
 import random
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.snowball import SnowballStemmer
+from nltk.stem.porter import PorterStemmer
 import nltk
 import os
 import json
@@ -87,9 +88,9 @@ def classer(sample):
     Provides the class of the given sample.
     """
     score = float(sample[1])
-    if score > 0.2 and score <= 5:
+    if score > 0.1 and score <= 5:
         return AGREE_CLASS
-    elif score < -0.2 and score >= -5:
+    elif score < -0.1 and score >= -5:
         return DISAGREE_CLASS
 #End def
 
@@ -167,7 +168,7 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50, dropout=False, dropout_pe
                'words': words,
                'classes': classes
               }
-    synapse_file = "synapsesTwo.json"
+    synapse_file = "temp.json"
 
     with open(synapse_file, 'w') as outfile:
         json.dump(synapse, outfile, indent=4, sort_keys=True)
@@ -191,7 +192,7 @@ def classify(sentence, show_details=False):
     return return_results[0]
 #End def
 
-stemmer = LancasterStemmer()
+stemmer = PorterStemmer()
 parser = argparse.ArgumentParser()
 parser.add_argument('train', help='The filename that points to training set.')
 parser.add_argument('test', help='The filename that points to test set.')
@@ -206,7 +207,7 @@ with open(args.train, 'r') as csv_train:
     next(train_reader)
     for row in train_reader:
         rating = float(row[1])
-        if rating >= -2 and rating < 2:
+        if rating >= -1 and rating < 1:
             continue       
         data.append(getWords(row[3]))
         line.append(row[3])
@@ -272,14 +273,14 @@ X = np.array(training)
 y = np.array(output)
 
 # DO THIS IF YOU WANT TO TRAIN ANOTHER NN
-#train(X, y, hidden_neurons=20, alpha=0.1, epochs=100000, dropout=False, dropout_percent=0.2)
+train(X, y, hidden_neurons=20, alpha=0.1, epochs=5000, dropout=False, dropout_percent=0.2)
 
 print "Done processing"
 
 # probability threshold
 ERROR_THRESHOLD = 0.02
 # load our calculated synapse values
-synapse_file = 'synapsesTwo.json' 
+synapse_file = 'temp.json' 
 with open(synapse_file) as data_file: 
     synapse = json.load(data_file) 
     synapse_0 = np.asarray(synapse['synapse0']) 
@@ -307,8 +308,8 @@ with open(args.test, 'r') as csv_test:
         classesTest.append(classer(row))
 #End with
 
-#print resultTest
-#print classesTest
+print resultTest
+print classesTest
 
 correct, incorrect = (0,0)
 for i in range(0,len(classesTest)):
